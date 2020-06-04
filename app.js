@@ -84,7 +84,6 @@ app.get('/',function(req,res,next){
 
 // Insert
 app.post('/',function(req,res,next){
-
     // Insert Query
     var {name, reps, weight, date, lbs} = req.body;
     mysql.pool.query(insertQuery, [name, reps, weight, date, lbs], function(err, result){
@@ -93,15 +92,16 @@ app.post('/',function(req,res,next){
             return;
         }
     });
+
     // Select All Query
-    var context = {};
+    // var context = {};
     mysql.pool.query(selectQuery, function(err, rows, fields){
         if(err){
             next(err);
             return;
         }
-        // Store MySQL Query results in context variable to pass to webpage
-        context.results = rows;
+        // // Store MySQL Query results in context variable to pass to webpage
+        // context.results = rows;
 
         // Convert the dates in the query results to be in mm/dd/yyyy format
         for(entry in rows) {
@@ -142,14 +142,14 @@ app.delete('/',function(req,res,next){
         }
     });
     // Select All Query
-    var context = {};
+    // var context = {};
     mysql.pool.query(selectQuery, function(err, rows, fields){
         if(err){
             next(err);
             return;
         }
-        // Store MySQL Query results in context variable to pass to webpage
-        context.results = rows;
+        // // Store MySQL Query results in context variable to pass to webpage
+        // context.results = rows;
 
         // Convert the dates in the query results to be in mm/dd/yyyy format
         for(entry in rows) {
@@ -165,19 +165,6 @@ app.delete('/',function(req,res,next){
         res.send(rows);
     });
 });
-
-// // Error Handling
-// app.use(function(req,res){
-//     res.status(404);
-//     res.render('404', {layout: 'error.handlebars'});
-// });
-
-// app.use(function(err, req, res, next){
-//     console.error(err.stack);
-//     res.type('plain/text');
-//     res.status(500);
-//     res.render('500', {layout: 'error.handlebars'});
-// });
 
 // Start Server
 app.listen(app.get('port'), function(){

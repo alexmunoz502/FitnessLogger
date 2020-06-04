@@ -3,13 +3,27 @@ document.addEventListener("DOMContentLoaded", initializePage);
 
 // Page Initialization
 function initializePage() {
-    // createTable();
-    bindButtons();
+    bindAddButton();
+    bindTableButtons();
 }
 
-// Button Functionality
-function bindButtons() {
-    document.body.addEventListener("click", function(event){
+// Add Form Button Functionality
+function bindAddButton() {
+    /*
+    Add Record button is bound separately from the table records,
+    because otherwise every time the table is refreshed, the add record
+    function would be added to the add record click event, which could
+    cause it to fire an unintended amount of times and bombard the server with post requests.
+    */
+    let addRecordButton = document.getElementById("addRecordButton");
+    addRecordButton.addEventListener("click", function(event){
+        addButton();
+    });
+}
+
+// Table Records Button Functionality
+function bindTableButtons() {
+    document.getElementById("workoutsTable").addEventListener("click", function(event){
         // Get the target of the click event
         var target = event.target;
 
@@ -23,9 +37,6 @@ function bindButtons() {
         if (target.classList.contains("delete")){
             deleteButton(target);
         };
-        if (target.classList.contains("add")){
-            addButton();
-        }
     });
 };
 
@@ -65,7 +76,6 @@ function createTable(data) {
     for (entryIndex in data) {
         // Designate object at current index as current entry
         currentEntry = data[entryIndex];
-        console.log(currentEntry);
 
         // Create Row for New Data
         let newRow = document.createElement("TR");
@@ -118,7 +128,7 @@ function createTable(data) {
         }
     }
     // Bind the new buttons
-    bindButtons();
+    bindTableButtons();
 }
 
 // Fetch Row Helper Function
@@ -131,7 +141,7 @@ function convertValuesToInputs (rowElement) {
     rowNodes = rowElement.childNodes;
     for (elementIndex in rowNodes){
         let currentElement = rowNodes[elementIndex];
-        console.log(currentElement)
+
         if (currentElement.tagName == "TD"){
             // Convert Fields to Editor Form
             if (currentElement.classList.contains("field")){
@@ -140,7 +150,6 @@ function convertValuesToInputs (rowElement) {
                 let currentInput = document.createElement("input");
                 currentElement.appendChild(currentInput);
                 currentInput.value = currentValue;
-                console.log(currentElement);
             }
             // Convert Buttons to Editor Buttons
             if (currentElement.classList.contains("btn")){
@@ -172,6 +181,8 @@ function editButton(btn) {
 }
 // Add Button Functionality
 function addButton() {
+    console.log("Adding Record")
+
     // Fetch Inputs
     nameInput = document.getElementById("nameInput").value;
     repsInput = document.getElementById("repsInput").value;
@@ -179,19 +190,8 @@ function addButton() {
     dateInput = document.getElementById("dateInput").value;
     lbsInput = document.getElementById("lbsInput").value;
 
-    //Debug
-    console.log("Add Record Button Clicked");
-    console.log("name: " + nameInput.toString());
-    console.log("reps: " + repsInput.toString());
-    console.log("weight: " + weightInput.toString());
-    console.log("date: " + dateInput.toString());
-    console.log("lbs: " + lbsInput.toString());
-
     // Send Async request to server to add the entry to the database
     databaseAdd(nameInput, repsInput, weightInput, dateInput, lbsInput);
-
-
-
 
 }
 
@@ -207,14 +207,12 @@ function databaseAdd(name, reps, weight, date, lbs) {
         if (request.status >= 200 && request.status < 400){
             // Create Table with Updated Database information
             createTable(JSON.parse(request.response));
-            return;
         } else {
             console.log("Oops! There was an error processing this request: " + request.statusText);
         }
     });
     request.send(JSON.stringify(payload));
     event.preventDefault();
-
 }
 
 // Delete Button Funtionality
@@ -222,8 +220,6 @@ function deleteButton(btn) {
     // Fetch Corresponding Row ID
     currentRow = fetchRow(btn);
     currentRowID = currentRow.getElementsByClassName("id")[0].innerText;
-    // Debug
-    console.log(currentRowID + " delete button clicked.");
 
     // Send Async request to server to remove the entry from the database based on the ID
     databaseDelete(currentRowID);
