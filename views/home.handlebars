@@ -1,1 +1,57 @@
-<h1>Hello World!</h1>
+<h1>Fitness Logger</h1>
+
+{{!-- Display Records --}}
+<div id="tableContainer">
+    <table id="workoutsTable">
+        {{#if results}}
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>reps</th>
+                <th>weight</th>
+                <th>date</th>
+                <th>units</th>
+            </tr>
+        {{else}}
+            <tr>
+                <th>Add a record to get started!</th>
+            </tr>
+        {{/if}}
+        {{#each results}}
+            <tr>
+                <td class="id field">{{this.id}}</td>
+                <td class="name field">{{this.name}}</td>
+                <td class="reps field">{{this.reps}}</td>
+                <td class="weight field">{{this.weight}}</td>
+                <td class="date field">{{this.date}}</td>
+                <td class="lbs field">{{#if this.lbs}}lbs.{{else}}kgs.{{/if}}</td>
+                <td class="btn"><button class="edit">edit</button></td>
+                <td class="btn"><button class="delete">delete</button></td>
+            </tr>
+        {{/each}}
+    </table>
+</div>
+
+{{!-- Page Section Separator --}}
+<hr>
+
+{{!-- Add New Record Form --}}
+<table id="addRecordForm">
+    <tr>
+        <td>Add Data:</td>
+        <td><input id="nameInput" type="text" placeholder="name" required/></td>
+        <td><input id="repsInput" type="number" placeholder="reps" required/></td>
+        <td><input id="weightInput" type="number" placeholder="weight" required/></td>
+        <td><input id="dateInput" type="date" placeholder="mm/dd/yyyy" required/></td>
+        <td>
+            <select id="lbsInput" required>
+                <option value="1">lbs.</option>
+                <option value="0">kgs.</option>
+            </select>
+        </td>
+        <td class="btn"><button class="add">add</button></td>
+    </tr>
+</table>
+
+{{!-- Link Application Functionality --}}
+<script src="/scripts/script.js"></script>
