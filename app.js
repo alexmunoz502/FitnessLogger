@@ -25,7 +25,7 @@ app.use(express.json());
 // SQL Strings
 const selectQuery = "SELECT * FROM workouts";
 const insertQuery = "INSERT INTO workouts (name, reps, weight, date, lbs) VALUES (?, ?, ?, ?, ?)";
-const updateQuery = "UPDATE workouts SET name=? reps=? weight=? date=? lbs=? WHERE id=?";
+const updateQuery = "UPDATE workouts SET name=?,reps=?,weight=?,date=?,lbs=? WHERE id=?";
 const deleteQuery = "DELETE FROM workouts WHERE id=?";
 const dropTableQuery = "DROP TABLE IF EXISTS workouts";
 const createTableQuery = 
@@ -94,15 +94,11 @@ app.post('/',function(req,res,next){
     });
 
     // Select All Query
-    // var context = {};
     mysql.pool.query(selectQuery, function(err, rows, fields){
         if(err){
             next(err);
             return;
         }
-        // // Store MySQL Query results in context variable to pass to webpage
-        // context.results = rows;
-
         // Convert the dates in the query results to be in mm/dd/yyyy format
         for(entry in rows) {
             var entryDate = new Date(rows[entry].date);
@@ -177,11 +173,36 @@ app.delete('/',function(req,res,next){
                 year: "numeric",
               });
         };
-
+        
         // Render the home page with the MySQL data context
         res.send(rows);
     });
 });
+
+// Select All Query
+function selectAllQuery() {
+    // Select All Query
+    mysql.pool.query(selectQuery, function(err, rows, fields){
+        if(err){
+            next(err);
+            return;
+        }
+
+        // Convert the dates in the query results to be in mm/dd/yyyy format
+        for(entry in rows) {
+            var entryDate = new Date(rows[entry].date);
+            rows[entry].date = entryDate.toLocaleDateString('en-US', {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                });
+        };
+        
+        // Render the home page with the MySQL data context
+        res.send(rows);
+    });
+}
+
 
 // Start Server
 app.listen(app.get('port'), function(){

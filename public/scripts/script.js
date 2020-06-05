@@ -72,8 +72,8 @@ function createTable(data) {
     let headerRow = document.createElement("TR");
     table.appendChild(headerRow);
     if (data.length > 0) {
-        let headers = ["id", "name", "reps", "weight", "date", "units"];
-        for (i=0; i<6; i++) {
+        let headers = ["name", "reps", "weight", "date", "units"];
+        for (i=0; i<5; i++) {
             let newCell = document.createElement("TH");
             headerRow.appendChild(newCell);
             newCell.innerText = headers[i];
@@ -95,13 +95,15 @@ function createTable(data) {
         table.appendChild(newRow);
 
         // Create Cells for Each Field in Entry
+        let tdClasses = ["id", "name", "reps", "weight", "date", "lbs"]
+        let tdClassIndex = 0;
         for (fieldIndex in currentEntry){
             // Designate object at current index as current field
             currentField = currentEntry[fieldIndex];
 
             // Create Cell for New Data
             let newCell = document.createElement("TD");
-
+            
             // Assign Cell Value
             if (fieldIndex == "lbs"){
                 if (currentField == 1) {
@@ -116,11 +118,14 @@ function createTable(data) {
             // Give the first cell the class of ID
             if (fieldIndex == "id") {
                 newCell.classList.add("id")
+                newCell.setAttribute("hidden", true);
             }
 
             // Assign Field Class and Append to New Table Row
-            newCell.classList.add("field")
+            newCell.classList.add(tdClasses[tdClassIndex]);
+            newCell.classList.add("field");
             newRow.appendChild(newCell);
+            tdClassIndex += 1;
         }
 
         // Add Edit/Delete Buttons
@@ -262,7 +267,7 @@ function revertRowValues(listOfNodes, listOfValues) {
     }
 }
 
-// Declare Cancel Button Funcionality
+// Declare Cancel Button
 let cancelButton = function() {
     // Overwritten by edit mode function
     return;
@@ -289,7 +294,7 @@ function submitButton(btn) {
     // List to store request parameters
     let inputValues = [];
 
-    // Get children of current row
+    // Get children of current row and add their values to the input values list
     rowNodes = currentRow.childNodes
     for (nodeIndex in rowNodes) {
         // Designate current element
@@ -299,14 +304,47 @@ function submitButton(btn) {
         if (currentElement.tagName != "TD") continue;
 
         // Add Field Values to inputValues list
+        if (currentElement.classList.contains("id")){
+            inputValues.push(currentElement.innerText);
+            continue;
+        }
         if (currentElement.classList.contains("field")){
             inputValues.push(currentElement.childNodes[0].value);
         }
 
     }
 
-    // Fetch Field Values
-    console.log(inputValues);
+    // Check for empty inputs
+    for (inputIndex in inputValues){
+        if (inputValues[inputIndex] == ''){
+            emptyFieldsError();
+            return;
+        }
+    }
+
+    // Send Async request to server to update the entry in the database
+    databaseUpdate.apply(null, inputValues);
+    editorMode = false;
+}
+
+function databaseUpdate(id, name, reps, weight, date, lbs) {
+    // Create Request and Set Payload (the data to be added to the database)
+    let request = new XMLHttpRequest();
+    let payload = {id:id, name: name, reps: reps, weight: weight, date: date, lbs: lbs}
+
+    // Process Insert request to server
+    request.open("PUT", "/", true);
+    request.setRequestHeader("Content-Type", "application/json");
+    request.addEventListener("load", function(){
+        if (request.status >= 200 && request.status < 400){
+            // Create Table with Updated Database information
+            createTable(JSON.parse(request.response));
+        } else {
+            console.log("Oops! There was an error processing this request: " + request.statusText);
+        }
+    });
+    request.send(JSON.stringify(payload));
+    event.preventDefault();
 }
 
 // Add Button Functionality
@@ -318,9 +356,25 @@ function addButton() {
     dateInput = document.getElementById("dateInput").value;
     lbsInput = document.getElementById("lbsInput").value;
 
+    // Store in list
+    let addInputs = [nameInput, repsInput, weightInput, dateInput, lbsInput];
+
+    // Check for empty inputs
+    for (inputIndex in addInputs){
+        if (addInputs[inputIndex] == ''){
+            emptyFieldsError();
+            return;
+        }
+    }
+
     // Send Async request to server to add the entry to the database
+    console.log(nameInput, repsInput, weightInput, dateInput, lbsInput);
     databaseAdd(nameInput, repsInput, weightInput, dateInput, lbsInput);
 
+}
+
+function emptyFieldsError(){
+    alert("All record entry fields must be filled.")
 }
 
 function databaseAdd(name, reps, weight, date, lbs) {

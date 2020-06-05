@@ -1,16 +1,113 @@
+h1 {
+  text-align: center;
+  font-family: 'Permanent Marker', cursive;
+  font-size: 350%;
+  color: #272727;
+}
+.highlight {
+  color: #59253A;
+}
+
+h2 {
+  margin-top: -6%;
+  text-align: center;
+  font-size: 80%;
+  color: #747474;
+}
+
+h3 {
+  margin-top: -1%;
+  margin-bottom: 5%;
+  text-align: center;
+  color: #747474;
+  font-size: 50%;
+}
+
+h4 {
+  margin-left: 10%;
+  margin-bottom: -.8%;
+  font-size: 75%;
+  color: #272727;
+}
+
+hr {
+  width: 80%;
+  color: #272727;
+}
+
+body {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),url('/images/background-image.jpeg');
+  background-size: cover;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.application-box {
+  margin-left: 10%;
+  margin-right: 10%;
+  height: 40vmax;
+  border-radius: 1rem;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  background-color: whitesmoke;
+}
+
 table {
     border-collapse: collapse;
+    border-radius: 1rem;
   }
 
 td {
-    border: 1px solid black;
-    width: 75px;
+    vertical-align: center;
+    border: 1px solid #747474;
   }
 
 input {
-    width: 98%;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    box-sizing:border-box
 }
 
-.selected {
-    color: red;
+#addRecordForm {
+  margin-bottom: 5%;
+  margin-left: 10%;
+}
+
+/* #addRecordForm td {
+  border: thin solid #272727;;
+} */
+
+th {
+  font-size: 75%;
+  color: whitesmoke;
+  background-color: #272727;
+  height: 100%;
+  border: thin solid #747474;
+}
+
+.name {
+  width: 15vmax;
+}
+
+.reps, .weight, .lbs {
+  width: 5vmax;
+}
+
+.date {
+  width: 10vmax;
+}
+
+#tableContainer {
+  margin-left: 10%;
+}
+
+.btn {
+  border: none;
+  width: 4vmax;
+}
+
+button {
+  border-radius: 0.25rem;
+  background-color: #272727;
+  color: whitesmoke;
 }
