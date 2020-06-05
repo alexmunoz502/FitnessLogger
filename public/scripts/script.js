@@ -7,6 +7,9 @@ function initializePage() {
     bindTableButtons();
 }
 
+// editor mode
+let editorMode = false;
+
 // Add Form Button Functionality
 function bindAddButton() {
     /*
@@ -33,9 +36,19 @@ function bindTableButtons() {
         // Perform functionality based on type of button
         if (target.classList.contains("edit")){
             editButton(target);
+            return;
         };
         if (target.classList.contains("delete")){
             deleteButton(target);
+            return;
+        };
+        if (target.classList.contains("submit")){
+            submitButton(target);
+            return;
+        };
+        if (target.classList.contains("cancel")){
+            cancelButton(target);
+            return;
         };
     });
 };
@@ -137,52 +150,167 @@ function fetchRow(element) {
 }
 
 // Convert Row values to Row Inputs
-function convertValuesToInputs (rowElement) {
+function enterEditorMode (rowElement) {
+    // Set Editor Mode On
+    editorMode = true;
+
+    // Allow current row to be edited
+    // Get a list of all of the child nodes on the current row
     rowNodes = rowElement.childNodes;
+
+    // Create an array to store the original values of the row, in case the user decides to cancel the edit
+    let originalValues = [];
+
+    // Iterate through the nodes and covert the text to inputs the user can edit
     for (elementIndex in rowNodes){
+        // Designate the current element
         let currentElement = rowNodes[elementIndex];
 
         if (currentElement.tagName == "TD"){
             // Convert Fields to Editor Form
+            if (currentElement.classList.contains("id")) continue;
             if (currentElement.classList.contains("field")){
                 currentValue = currentElement.innerText;
+                originalValues.push(currentValue);
                 currentElement.innerText = "";
+                if (currentElement.classList.contains("lbs")) {
+                    let selector = document.createElement("select");
+                    let lbsSelect = document.createElement("option");
+                    let kgsSelect = document.createElement("option");
+                    lbsSelect.setAttribute("value", "1");
+                    lbsSelect.innerText = "lbs.";
+                    kgsSelect.setAttribute("value", "0");
+                    kgsSelect.innerText = "kgs.";
+                    if (currentValue == "lbs.") {
+                        lbsSelect.setAttribute("selected", true);
+                    } else {
+                        kgsSelect.setAttribute("selected", true);
+                    }
+                    currentElement.appendChild(selector);
+                    selector.appendChild(lbsSelect);
+                    selector.appendChild(kgsSelect);
+                    continue;                    
+                };
                 let currentInput = document.createElement("input");
                 currentElement.appendChild(currentInput);
                 currentInput.value = currentValue;
+                if (currentElement.classList.contains("name")){
+                    currentInput.setAttribute("type", "text");
+                } else if (currentElement.classList.contains("reps")){
+                    currentInput.setAttribute("type", "number");
+                } else if (currentElement.classList.contains("weight")){
+                    currentInput.setAttribute("type", "number");
+                } else if (currentElement.classList.contains("date")){
+                    let currentDate = (currentValue.slice(6, 10)) + "-" + (currentValue.slice(0, 2)) + "-" + (currentValue.slice(3,5));
+                    currentInput.setAttribute("value", currentDate);
+                    currentInput.setAttribute("type", "date");
+                    currentInput.value = currentDate;
+                }
             }
             // Convert Buttons to Editor Buttons
             if (currentElement.classList.contains("btn")){
                 let currentButton = currentElement.childNodes[0];
                 if (currentButton.classList.contains("edit")){
-                    currentButton.innerText = "Submit";
+                    currentButton.innerText = "submit";
                     currentButton.classList.remove("edit");
                     currentButton.classList.add("submit");
                 }
                 if (currentButton.classList.contains("delete")){
-                    currentButton.innerText = "Cancel";
+                    currentButton.innerText = "cancel";
                     currentButton.classList.remove("delete");
                     currentButton.classList.add("cancel");
                 }
             }
         }
     }
+    // Set cancel function to revert cell values
+    cancelButton = function() {
+        revertRowValues(rowNodes, originalValues);
+        editorMode = false;
+    }
+}
+// Convert Row Inputs back to Row Values
+function revertRowValues(listOfNodes, listOfValues) {
+    let valueIndex = 0;
+    for (nodeIndex in listOfNodes) {
+        // Designate the current element
+        let currentElement = listOfNodes[nodeIndex];
+
+        if (currentElement.tagName == "TD"){
+            if (currentElement.classList.contains("id")) continue;
+            // Convert Editor Form to Value Fields
+            if (currentElement.classList.contains("field")){
+                currentElement.removeChild(currentElement.childNodes[0]);
+                currentElement.innerText = listOfValues[valueIndex];
+                valueIndex += 1;
+            }
+            // Convert Buttons to Editor Buttons
+            if (currentElement.classList.contains("btn")){
+                let currentButton = currentElement.childNodes[0];
+                if (currentButton.classList.contains("submit")){
+                    currentButton.innerText = "edit";
+                    currentButton.classList.remove("submit");
+                    currentButton.classList.add("edit");
+                }
+                if (currentButton.classList.contains("cancel")){
+                    currentButton.innerText = "delete";
+                    currentButton.classList.remove("cancel");
+                    currentButton.classList.add("delete");
+                }
+            }
+        }
+    }
+}
+
+// Declare Cancel Button Funcionality
+let cancelButton = function() {
+    // Overwritten by edit mode function
+    return;
 }
 
 // Edit Button Functionality
 function editButton(btn) {
-    // Fetch Corresponding Row ID
-    currentRow = fetchRow(btn);
-    currentRowID = currentRow.getElementsByClassName("id")[0].innerText;
-    // Debug
-    console.log(currentRowID + " edit button clicked.");
-    // Entry editor functionality
-    convertValuesToInputs(currentRow);
+    if (!editorMode) {
+        // Fetch Corresponding Row
+        currentRow = fetchRow(btn);
+
+        // Entry editor functionality
+        enterEditorMode(currentRow);
+    } else {
+        alert("You cannot edit more than one row at once.");
+    }    
 }
+
+// Submit Edit Button Functionality
+function submitButton(btn) {
+    // Fetch Corresponding Row
+    currentRow = fetchRow(btn);
+
+    // List to store request parameters
+    let inputValues = [];
+
+    // Get children of current row
+    rowNodes = currentRow.childNodes
+    for (nodeIndex in rowNodes) {
+        // Designate current element
+        currentElement = rowNodes[nodeIndex];
+
+        // Ignore text nodes
+        if (currentElement.tagName != "TD") continue;
+
+        // Add Field Values to inputValues list
+        if (currentElement.classList.contains("field")){
+            inputValues.push(currentElement.childNodes[0].value);
+        }
+
+    }
+
+    // Fetch Field Values
+    console.log(inputValues);
+}
+
 // Add Button Functionality
 function addButton() {
-    console.log("Adding Record")
-
     // Fetch Inputs
     nameInput = document.getElementById("nameInput").value;
     repsInput = document.getElementById("repsInput").value;
@@ -217,6 +345,9 @@ function databaseAdd(name, reps, weight, date, lbs) {
 
 // Delete Button Funtionality
 function deleteButton(btn) {
+    let confirmation = window.confirm("Are you sure you want to delete this record?");
+    if (!confirmation) return;
+
     // Fetch Corresponding Row ID
     currentRow = fetchRow(btn);
     currentRowID = currentRow.getElementsByClassName("id")[0].innerText;

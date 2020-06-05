@@ -119,18 +119,38 @@ app.post('/',function(req,res,next){
 });
 
 // Update
-app.put('/update',function(req,res,next){
-    var context = {};
-    var {name, reps, weight, date, lbs} = req.body;
-    mysql.pool.query(updateQuery, [name, reps, weight, date, lbs], function(err, result){
+app.put('/',function(req,res,next){
+    // Update Query
+    var {id, name, reps, weight, date, lbs} = req.body;
+    mysql.pool.query(updateQuery, [name, reps, weight, date, lbs, id], function(err, result){
         if(err){
             next(err);
             return;
         }
-        context.results = "Updated " + result.changedRows + " rows.";
-        res.render('home',context);
     });
-  });
+
+    // Select All Query
+    mysql.pool.query(selectQuery, function(err, rows, fields){
+        if(err){
+            next(err);
+            return;
+        }
+
+        // Convert the dates in the query results to be in mm/dd/yyyy format
+        for(entry in rows) {
+            var entryDate = new Date(rows[entry].date);
+            rows[entry].date = entryDate.toLocaleDateString('en-US', {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              });
+        };
+
+        // Render the home page with the MySQL data context
+        res.send(rows);
+    });
+
+});
 
 // Delete
 app.delete('/',function(req,res,next){
@@ -142,14 +162,11 @@ app.delete('/',function(req,res,next){
         }
     });
     // Select All Query
-    // var context = {};
     mysql.pool.query(selectQuery, function(err, rows, fields){
         if(err){
             next(err);
             return;
         }
-        // // Store MySQL Query results in context variable to pass to webpage
-        // context.results = rows;
 
         // Convert the dates in the query results to be in mm/dd/yyyy format
         for(entry in rows) {
