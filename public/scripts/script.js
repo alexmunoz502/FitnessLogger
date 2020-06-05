@@ -411,6 +411,7 @@ function deleteButton(btn) {
 }
 
 function databaseDelete(id) {
+    console.log("entering database delete")
     // Create Request and Set Payload (the ID of the row to be deleted from the Database)
     let request = new XMLHttpRequest();
     let payload = {id: id}
@@ -421,6 +422,7 @@ function databaseDelete(id) {
     request.addEventListener("load", function(){
         if (request.status >= 200 && request.status < 400){
             // Create Table with Updated Database information
+            console.log("redrawing table after deletion")
             createTable(JSON.parse(request.response));
         } else {
             console.log("Oops! There was an error processing this request: " + request.statusText);

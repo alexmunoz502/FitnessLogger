@@ -69,7 +69,7 @@ input {
 }
 
 #addRecordForm {
-  margin-bottom: 5%;
+  margin-bottom: 2.5%;
   margin-left: 10%;
 }
 
@@ -99,6 +99,9 @@ th {
 
 #tableContainer {
   margin-left: 10%;
+  margin-right: 10%;
+  height: 14vmax;
+  overflow: auto;
 }
 
 .btn {

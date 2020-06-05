@@ -49,18 +49,20 @@
                     <th>Add a record to get started!</th>
                 </tr>
             {{/if}}
-            {{#each results}}
-                <tr>
-                    <td class="id field" hidden>{{this.id}}</td>
-                    <td class="name field">{{this.name}}</td>
-                    <td class="reps field">{{this.reps}}</td>
-                    <td class="weight field">{{this.weight}}</td>
-                    <td class="date field">{{this.date}}</td>
-                    <td class="lbs field">{{#if this.lbs}}lbs.{{else}}kgs.{{/if}}</td>
-                    <td class="btn"><button class="edit">edit</button></td>
-                    <td class="btn"><button class="delete">delete</button></td>
-                </tr>
-            {{/each}}
+            <div class="tableBody">
+                {{#each results}}
+                    <tr>
+                        <td class="id field" hidden>{{this.id}}</td>
+                        <td class="name field">{{this.name}}</td>
+                        <td class="reps field">{{this.reps}}</td>
+                        <td class="weight field">{{this.weight}}</td>
+                        <td class="date field">{{this.date}}</td>
+                        <td class="lbs field">{{#if this.lbs}}lbs.{{else}}kgs.{{/if}}</td>
+                        <td class="btn"><button class="edit">edit</button></td>
+                        <td class="btn"><button class="delete">delete</button></td>
+                    </tr>
+                {{/each}}
+            </div>
         </table>
     </div>
 </div>

@@ -91,26 +91,9 @@ app.post('/',function(req,res,next){
             next(err);
             return;
         }
-    });
-
-    // Select All Query
-    mysql.pool.query(selectQuery, function(err, rows, fields){
-        if(err){
-            next(err);
-            return;
-        }
-        // Convert the dates in the query results to be in mm/dd/yyyy format
-        for(entry in rows) {
-            var entryDate = new Date(rows[entry].date);
-            rows[entry].date = entryDate.toLocaleDateString('en-US', {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                });
-        };
-
-        // Render the home page with the MySQL data context
-        res.send(rows);
+        
+        // Send Back Database Data
+        selectAllQuery(res);
     });
 });
 
@@ -123,29 +106,10 @@ app.put('/',function(req,res,next){
             next(err);
             return;
         }
+
+        // Send Back Database Data
+        selectAllQuery(res);
     });
-
-    // Select All Query
-    mysql.pool.query(selectQuery, function(err, rows, fields){
-        if(err){
-            next(err);
-            return;
-        }
-
-        // Convert the dates in the query results to be in mm/dd/yyyy format
-        for(entry in rows) {
-            var entryDate = new Date(rows[entry].date);
-            rows[entry].date = entryDate.toLocaleDateString('en-US', {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              });
-        };
-
-        // Render the home page with the MySQL data context
-        res.send(rows);
-    });
-
 });
 
 // Delete
@@ -156,31 +120,14 @@ app.delete('/',function(req,res,next){
             next(err);
             return;
         }
+        // Send Back Database Data
+        selectAllQuery(res);
     });
-    // Select All Query
-    mysql.pool.query(selectQuery, function(err, rows, fields){
-        if(err){
-            next(err);
-            return;
-        }
-
-        // Convert the dates in the query results to be in mm/dd/yyyy format
-        for(entry in rows) {
-            var entryDate = new Date(rows[entry].date);
-            rows[entry].date = entryDate.toLocaleDateString('en-US', {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              });
-        };
-        
-        // Render the home page with the MySQL data context
-        res.send(rows);
-    });
+    
 });
 
 // Select All Query
-function selectAllQuery() {
+function selectAllQuery(res) {
     // Select All Query
     mysql.pool.query(selectQuery, function(err, rows, fields){
         if(err){
